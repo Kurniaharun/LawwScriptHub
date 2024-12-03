@@ -20,7 +20,7 @@ local function ShowWelcomeNotification()
     -- Display notification in top-right corner
     LawwLib:MakeNotification({
         Name = "Welcome " .. displayName,
-        Content = "Enjoy using LawwScriptHUB!",
+        Content = "LawwScriptHub On The Fire",
         Image = avatarUrl,
         Time = 2 -- Notification duration
     })
@@ -134,7 +134,7 @@ end)
 -- Animations & Theme
 LawwLib:MakeNotification({
     Name = "Info",
-    Content = "UI Hitam ke Biruan dengan efek pop-up.",
+    Content = "Sc Ini Dibuat Oleh Tiktok lawwadmin",
     Time = 5,
     Image = "rbxassetid://4483345998"
 })
