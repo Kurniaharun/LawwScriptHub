@@ -1,256 +1,147 @@
---[[ 
-LawwScriptHUB
-Author: LawwAdmin
-Description: Script Hub with modern UI, password system, Lua script execution, and draggable UI.
---]]
+-- Get player display name and avatar
+local player = game.Players.LocalPlayer
+local displayName = player.DisplayName
+local avatarUrl = "https://www.roblox.com/bust-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
 
--- Create Main ScreenGui
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Name = "LawwScriptHUB"
+-- Create the Welcome UI
+local welcomeFrame = Instance.new("Frame")
+welcomeFrame.Size = UDim2.new(0, 500, 0, 300)
+welcomeFrame.Position = UDim2.new(0.5, -250, 0.5, -150)
+welcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+welcomeFrame.BorderSizePixel = 0
+welcomeFrame.Parent = game.Players.LocalPlayer.PlayerGui
 
--- Helper Function to Create UI Elements
-local function createUIElement(className, properties)
-    local element = Instance.new(className)
-    for property, value in pairs(properties) do
-        element[property] = value
-    end
-    return element
-end
+local avatarImage = Instance.new("ImageLabel")
+avatarImage.Size = UDim2.new(0, 50, 0, 50)
+avatarImage.Position = UDim2.new(0, 10, 0.5, -25)
+avatarImage.Image = avatarUrl
+avatarImage.Parent = welcomeFrame
 
--- Colors
-local BackgroundColor = Color3.fromRGB(20, 20, 20)
-local BorderColor = Color3.fromRGB(0, 170, 255)
-local TextColor = Color3.fromRGB(255, 255, 255)
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Size = UDim2.new(0, 200, 0, 50)
+nameLabel.Position = UDim2.new(0, 70, 0.5, -25)
+nameLabel.Text = "Welcome, " .. displayName
+nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Font = Enum.Font.SourceSans
+nameLabel.TextSize = 24
+nameLabel.Parent = welcomeFrame
 
--- Create Draggable UI Frame
-local function makeDraggable(frame)
-    local dragging = false
-    local dragInput, mousePos, framePos
-    local function updateDrag(input)
-        if dragging then
-            local delta = input.Position - mousePos
-            frame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-        end
-    end
-    
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            mousePos = input.Position
-            framePos = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateDrag(input)
-        end
-    end)
-end
-
--- Function to Check Password from File
-local function checkPassword(inputPassword)
-    local validPassword = nil
-    local success, result = pcall(function()
-        -- Get the password file line by line
-        validPassword = game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/LawwScriptHub/refs/heads/main/pass.txt")
-    end)
-
-    if success then
-        for line in string.gmatch(validPassword, "[^\r\n]+") do
-            if line == inputPassword then
-                return true
-            end
-        end
-    end
-
-    return false
-end
-
--- Create Welcome UI
-local function createWelcomeUI()
-    local WelcomeFrame = createUIElement("Frame", {
-        Parent = ScreenGui,
-        Size = UDim2.new(0, 400, 0, 200),
-        Position = UDim2.new(0.5, -200, 0.5, -100),
-        BackgroundColor3 = BackgroundColor,
-        BorderSizePixel = 0,
-        AnchorPoint = Vector2.new(0.5, 0.5)
-    })
-
-    local Border = createUIElement("UICorner", {Parent = WelcomeFrame, CornerRadius = UDim.new(0, 10)})
-
-    local WelcomeText = createUIElement("TextLabel", {
-        Parent = WelcomeFrame,
-        Size = UDim2.new(1, 0, 0.5, 0),
-        Position = UDim2.new(0, 0, 0, 10),
-        BackgroundTransparency = 1,
-        Text = "Welcome, " .. game.Players.LocalPlayer.DisplayName,
-        TextColor3 = TextColor,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 24
-    })
-
-    local Avatar = createUIElement("ImageLabel", {
-        Parent = WelcomeFrame,
-        Size = UDim2.new(0, 80, 0, 80),
-        Position = UDim2.new(0.5, -40, 0.5, 10),
-        BackgroundTransparency = 1,
-        Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" ..
-            game.Players.LocalPlayer.UserId .. "&width=150&height=150&format=png"
-    })
-
-    makeDraggable(WelcomeFrame)
-
-    wait(2)
-    WelcomeFrame:Destroy()
-end
+-- Close after 2 seconds
+wait(2)
+welcomeFrame:Destroy()
 
 -- Create Password UI
-local function createPasswordUI()
-    local PasswordFrame = createUIElement("Frame", {
-        Parent = ScreenGui,
-        Size = UDim2.new(0, 400, 0, 300),
-        Position = UDim2.new(0.5, -200, 0.5, -150),
-        BackgroundColor3 = BackgroundColor,
-        BorderSizePixel = 0,
-        AnchorPoint = Vector2.new(0.5, 0.5)
-    })
+local passwordFrame = Instance.new("Frame")
+passwordFrame.Size = UDim2.new(0, 400, 0, 300)
+passwordFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+passwordFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+passwordFrame.Parent = game.Players.LocalPlayer.PlayerGui
 
-    local Border = createUIElement("UICorner", {Parent = PasswordFrame, CornerRadius = UDim.new(0, 10)})
+local passwordInput = Instance.new("TextBox")
+passwordInput.Size = UDim2.new(0, 300, 0, 50)
+passwordInput.Position = UDim2.new(0, 50, 0, 50)
+passwordInput.PlaceholderText = "Enter Key"
+passwordInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+passwordInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+passwordInput.Font = Enum.Font.SourceSans
+passwordInput.TextSize = 20
+passwordInput.Parent = passwordFrame
 
-    local Title = createUIElement("TextLabel", {
-        Parent = PasswordFrame,
-        Size = UDim2.new(1, 0, 0, 50),
-        BackgroundTransparency = 1,
-        Text = "Enter Password",
-        TextColor3 = TextColor,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 24
-    })
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(0, 100, 0, 50)
+submitButton.Position = UDim2.new(0, 150, 0, 150)
+submitButton.Text = "Submit"
+submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+submitButton.Font = Enum.Font.SourceSans
+submitButton.TextSize = 20
+submitButton.Parent = passwordFrame
 
-    local PasswordBox = createUIElement("TextBox", {
-        Parent = PasswordFrame,
-        Size = UDim2.new(0.8, 0, 0, 50),
-        Position = UDim2.new(0.1, 0, 0.3, 0),
-        BackgroundColor3 = BackgroundColor,
-        TextColor3 = TextColor,
-        Font = Enum.Font.SourceSans,
-        TextSize = 18,
-        PlaceholderText = "Enter your password here..."
-    })
+submitButton.MouseButton1Click:Connect(function()
+    local password = passwordInput.Text
+    local keyRequest = game:GetService("HttpService"):GetAsync("https://raw.githubusercontent.com/Kurniaharun/LawwScriptHub/refs/heads/main/pass.txt")
+    
+    if password == keyRequest then
+        -- Proceed to Script Selection UI
+        passwordFrame:Destroy()
+        createScriptSelectionUI()
+    else
+        -- Show error message
+        local errorMessage = Instance.new("TextLabel")
+        errorMessage.Size = UDim2.new(0, 400, 0, 50)
+        errorMessage.Position = UDim2.new(0, 50, 0, 250)
+        errorMessage.Text = "Invalid Key!"
+        errorMessage.TextColor3 = Color3.fromRGB(255, 0, 0)
+        errorMessage.BackgroundTransparency = 1
+        errorMessage.Font = Enum.Font.SourceSans
+        errorMessage.TextSize = 20
+        errorMessage.Parent = passwordFrame
+    end
+end)
 
-    local SubmitButton = createUIElement("TextButton", {
-        Parent = PasswordFrame,
-        Size = UDim2.new(0.8, 0, 0, 50),
-        Position = UDim2.new(0.1, 0, 0.6, 0),
-        BackgroundColor3 = BorderColor,
-        Text = "Submit",
-        TextColor3 = TextColor,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 18
-    })
+local findKeyText = Instance.new("TextButton")
+findKeyText.Size = UDim2.new(0, 200, 0, 30)
+findKeyText.Position = UDim2.new(0.5, -100, 0, 200)
+findKeyText.Text = "Need Key? Click Here"
+findKeyText.TextColor3 = Color3.fromRGB(0, 0, 255)
+findKeyText.BackgroundTransparency = 1
+findKeyText.Font = Enum.Font.SourceSans
+findKeyText.TextSize = 18
+findKeyText.Parent = passwordFrame
 
-    local KeyHelpText = createUIElement("TextButton", {
-        Parent = PasswordFrame,
-        Size = UDim2.new(0.8, 0, 0, 20),
-        Position = UDim2.new(0.1, 0, 0.8, 0),
-        BackgroundTransparency = 1,
-        Text = "Nyari Key? Click",
-        TextColor3 = BorderColor,
-        Font = Enum.Font.SourceSans,
-        TextSize = 16
-    })
+findKeyText.MouseButton1Click:Connect(function()
+    passwordFrame:Destroy()
+    local contactFrame = Instance.new("Frame")
+    contactFrame.Size = UDim2.new(0, 400, 0, 200)
+    contactFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
+    contactFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    contactFrame.Parent = game.Players.LocalPlayer.PlayerGui
 
-    makeDraggable(PasswordFrame)
+    local contactText = Instance.new("TextLabel")
+    contactText.Size = UDim2.new(0, 400, 0, 100)
+    contactText.Position = UDim2.new(0, 0, 0, 50)
+    contactText.Text = "HUBUNGI TIKTOK @lawwadmin"
+    contactText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    contactText.BackgroundTransparency = 1
+    contactText.Font = Enum.Font.SourceSans
+    contactText.TextSize = 24
+    contactText.Parent = contactFrame
+end)
 
-    -- Password Check Logic
-    SubmitButton.MouseButton1Click:Connect(function()
-        local enteredPassword = PasswordBox.Text
+-- Create the Script Selection UI
+function createScriptSelectionUI()
+    local scriptFrame = Instance.new("Frame")
+    scriptFrame.Size = UDim2.new(0, 400, 0, 400)
+    scriptFrame.Position = UDim2.new(0.5, -200, 0.5, -200)
+    scriptFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    scriptFrame.Parent = game.Players.LocalPlayer.PlayerGui
 
-        -- Check if password matches one of the lines in pass.txt
-        if checkPassword(enteredPassword) then
-            PasswordFrame:Destroy()
-            createScriptUI()
-        else
-            PasswordBox.Text = ""
-            PasswordBox.PlaceholderText = "Wrong Password. Try Again."
-        end
-    end)
-
-    KeyHelpText.MouseButton1Click:Connect(function()
-        ScreenGui:ClearAllChildren()
-        local HelpText = createUIElement("TextLabel", {
-            Parent = ScreenGui,
-            Size = UDim2.new(1, 0, 1, 0),
-            BackgroundTransparency = 1,
-            Text = "HUBUNGI TIKTOK @lawwadmin",
-            TextColor3 = TextColor,
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 24,
-            TextScaled = true
-        })
-    end)
-end
-
--- Create Script UI
-local function createScriptUI()
-    local ScriptFrame = createUIElement("Frame", {
-        Parent = ScreenGui,
-        Size = UDim2.new(0, 400, 0, 400),
-        Position = UDim2.new(0.5, -200, 0.5, -200),
-        BackgroundColor3 = BackgroundColor,
-        BorderSizePixel = 0,
-        AnchorPoint = Vector2.new(0.5, 0.5)
-    })
-
-    local Border = createUIElement("UICorner", {Parent = ScriptFrame, CornerRadius = UDim.new(0, 10)})
-
-    local Title = createUIElement("TextLabel", {
-        Parent = ScriptFrame,
-        Size = UDim2.new(1, 0, 0, 50),
-        BackgroundTransparency = 1,
-        Text = "Select Your Script",
-        TextColor3 = TextColor,
-        Font = Enum.Font.SourceSansBold,
-        TextSize = 24
-    })
-
-    -- Example Scripts
     local scripts = {
-        {Name = "COKKA HUB NO KEY", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()]]},
-        {Name = "RedzHub V2 (Smooth)", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()]]},
-        {Name = "ANDEPZAI OP (TRIAL)", LuaCode = [[repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()]]},
-        {Name = "AUTO CHEST (OP)", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()]]}
+        {name = "COKKA HUB NO KEY", code = "_G.Key = 'Xzt7M9IAfF' \nloadstring(game:HttpGet('https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua'))()"},
+        {name = "RedzHub V2 (Smooth)", code = "loadstring(game:HttpGet('https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua'))()"},
+        {name = "ANDEPZAI OP (TRIAL)", code = "repeat wait() until game:IsLoaded() and game.Players.LocalPlayer \nloadstring(game:HttpGet('https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua'))()"},
+        {name = "AUTO CHEST (OP)", code = "loadstring(game:HttpGet('https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam'))()"}
     }
 
     for i, script in ipairs(scripts) do
-        local Button = createUIElement("TextButton", {
-            Parent = ScriptFrame,
-            Size = UDim2.new(0.8, 0, 0, 40),
-            Position = UDim2.new(0.1, 0, 0.1 + (i * 0.15), 0),
-            BackgroundColor3 = BorderColor,
-            Text = script.Name,
-            TextColor3 = TextColor,
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 18
-        })
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0, 350, 0, 50)
+        button.Position = UDim2.new(0, 25, 0, (i - 1) * 60 + 50)
+        button.Text = script.name
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        button.Font = Enum.Font.SourceSans
+        button.TextSize = 20
+        button.Parent = scriptFrame
 
-        Button.MouseButton1Click:Connect(function()
-            loadstring(script.LuaCode)()
+        button.MouseButton1Click:Connect(function()
+            loadstring(script.code)()
         end)
     end
 
-    makeDraggable(ScriptFrame)
-end
-
--- Run Welcome UI and Start the Flow
-createWelcomeUI()
-createPasswordUI()
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 100, 0, 50)
+    closeButton.Position = UDim2.new(0.5, -50, 0.9, -25)
+    closeButton.Text = "Close"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 
