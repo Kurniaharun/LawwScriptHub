@@ -1,7 +1,7 @@
 --[[ 
 LawwScriptHUB
 Author: LawwAdmin
-Description: Script Hub with modern UI, password system, and Lua script execution.
+Description: Script Hub with modern UI, password system, Lua script execution, and draggable UI.
 --]]
 
 -- Create Main ScreenGui
@@ -22,6 +22,56 @@ end
 local BackgroundColor = Color3.fromRGB(20, 20, 20)
 local BorderColor = Color3.fromRGB(0, 170, 255)
 local TextColor = Color3.fromRGB(255, 255, 255)
+
+-- Create Draggable UI Frame
+local function makeDraggable(frame)
+    local dragging = false
+    local dragInput, mousePos, framePos
+    local function updateDrag(input)
+        if dragging then
+            local delta = input.Position - mousePos
+            frame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end
+    
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            mousePos = input.Position
+            framePos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            updateDrag(input)
+        end
+    end)
+end
+
+-- Function to Check Password from File
+local function checkPassword(inputPassword)
+    local validPassword = nil
+    local success, result = pcall(function()
+        -- Get the password file line by line
+        validPassword = game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/LawwScriptHub/refs/heads/main/pass.txt")
+    end)
+
+    if success then
+        for line in string.gmatch(validPassword, "[^\r\n]+") do
+            if line == inputPassword then
+                return true
+            end
+        end
+    end
+
+    return false
+end
 
 -- Create Welcome UI
 local function createWelcomeUI()
@@ -55,6 +105,8 @@ local function createWelcomeUI()
         Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" ..
             game.Players.LocalPlayer.UserId .. "&width=150&height=150&format=png"
     })
+
+    makeDraggable(WelcomeFrame)
 
     wait(2)
     WelcomeFrame:Destroy()
@@ -116,17 +168,14 @@ local function createPasswordUI()
         TextSize = 16
     })
 
+    makeDraggable(PasswordFrame)
+
     -- Password Check Logic
     SubmitButton.MouseButton1Click:Connect(function()
         local enteredPassword = PasswordBox.Text
-        local validPassword = nil
 
-        -- Get Password from URL
-        pcall(function()
-            validPassword = game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/LawwScriptHub/refs/heads/main/pass.txt")
-        end)
-
-        if enteredPassword == validPassword then
+        -- Check if password matches one of the lines in pass.txt
+        if checkPassword(enteredPassword) then
             PasswordFrame:Destroy()
             createScriptUI()
         else
@@ -178,7 +227,7 @@ local function createScriptUI()
         {Name = "COKKA HUB NO KEY", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()]]},
         {Name = "RedzHub V2 (Smooth)", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()]]},
         {Name = "ANDEPZAI OP (TRIAL)", LuaCode = [[repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()]]},
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()]]},
         {Name = "AUTO CHEST (OP)", LuaCode = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()]]}
     }
 
@@ -198,6 +247,8 @@ local function createScriptUI()
             loadstring(script.LuaCode)()
         end)
     end
+
+    makeDraggable(ScriptFrame)
 end
 
 -- Run Welcome UI and Start the Flow
