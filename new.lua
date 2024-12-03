@@ -1,13 +1,18 @@
-local userDisplayName = game.Players.LocalPlayer.DisplayName
-local userAvatar = game.Players.LocalPlayer.AvatarUrl
+-- Wait for the game to load completely
+repeat wait() until game:IsLoaded()
+
+-- Basic UI setup
+local player = game.Players.LocalPlayer
+local displayName = player.DisplayName
+local avatarUrl = player.AvatarUrl
 local passwordCorrect = false
-local passwordInput = ""
 
--- UI Setup
+-- Create the main UI
 local ui = Instance.new("ScreenGui")
-ui.Parent = game.Players.LocalPlayer.PlayerGui
+ui.Parent = player.PlayerGui
+ui.Name = "LawwScriptHUB_UI"
 
--- Welcome Notification
+-- Welcome Notification UI
 local welcomeFrame = Instance.new("Frame")
 welcomeFrame.Size = UDim2.new(0, 300, 0, 100)
 welcomeFrame.Position = UDim2.new(1, -350, 0, 10)
@@ -16,14 +21,14 @@ welcomeFrame.BackgroundTransparency = 0.5
 welcomeFrame.Parent = ui
 
 local welcomeText = Instance.new("TextLabel")
-welcomeText.Text = "Welcome " .. userDisplayName
+welcomeText.Text = "Welcome " .. displayName
 welcomeText.Size = UDim2.new(1, 0, 1, 0)
 welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
 welcomeText.TextSize = 24
 welcomeText.Parent = welcomeFrame
 
 local avatarImage = Instance.new("ImageLabel")
-avatarImage.Image = userAvatar
+avatarImage.Image = avatarUrl
 avatarImage.Size = UDim2.new(0, 40, 0, 40)
 avatarImage.Position = UDim2.new(0, 10, 0.5, -20)
 avatarImage.Parent = welcomeFrame
@@ -32,7 +37,7 @@ avatarImage.Parent = welcomeFrame
 wait(2)
 welcomeFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
 
--- Password Prompt
+-- Password input UI
 local passwordFrame = Instance.new("Frame")
 passwordFrame.Size = UDim2.new(0, 400, 0, 200)
 passwordFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
@@ -63,17 +68,25 @@ submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 submitButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
 submitButton.Parent = passwordFrame
 
+-- Password check
 submitButton.MouseButton1Click:Connect(function()
     if passwordTextbox.Text == "lawwvip" then
         passwordCorrect = true
         passwordFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
-        -- Display Script List
+        -- Show script buttons
+        showScripts()
     else
         -- Show incorrect password message
+        local errorMessage = Instance.new("TextLabel")
+        errorMessage.Text = "Incorrect Password"
+        errorMessage.Size = UDim2.new(1, 0, 0, 40)
+        errorMessage.TextColor3 = Color3.fromRGB(255, 0, 0)
+        errorMessage.TextSize = 24
+        errorMessage.Parent = passwordFrame
     end
 end)
 
--- Script Buttons
+-- Function to create script buttons
 local function createScriptButton(scriptName, code)
     local button = Instance.new("TextButton")
     button.Text = scriptName
@@ -88,20 +101,37 @@ local function createScriptButton(scriptName, code)
     end)
 end
 
-createScriptButton("COKKA HUB NO KEY", '_G.Key = "Xzt7M9IAfF"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()')
-createScriptButton("RedzHub V2 (Smooth)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()')
-createScriptButton("ANDEPZAI OP (TRIAL)", 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer \nloadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()')
-createScriptButton("AUTO CHEST (OP)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()')
+-- Show scripts after password is correct
+function showScripts()
+    createScriptButton("COKKA HUB NO KEY", '_G.Key = "Xzt7M9IAfF"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()')
+    createScriptButton("RedzHub V2 (Smooth)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()')
+    createScriptButton("ANDEPZAI OP (TRIAL)", 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer \nloadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()')
+    createScriptButton("AUTO CHEST (OP)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()')
 
--- Close UI Button
-local closeButton = Instance.new("TextButton")
-closeButton.Text = "Close UI"
-closeButton.Size = UDim2.new(0, 100, 0, 40)
-closeButton.Position = UDim2.new(1, -110, 1, -50)
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeButton.Parent = ui
+    -- Close UI Button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Text = "Close UI"
+    closeButton.Size = UDim2.new(0, 100, 0, 40)
+    closeButton.Position = UDim2.new(1, -110, 1, -50)
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeButton.Parent = ui
 
-closeButton.MouseButton1Click:Connect(function()
+    closeButton.MouseButton1Click:Connect(function()
+        ui:Destroy()
+    end)
+end
+
+-- "Need the key?" clickable text
+local helpText = Instance.new("TextButton")
+helpText.Text = "Need the key? Click here"
+helpText.Size = UDim2.new(0, 200, 0, 40)
+helpText.Position = UDim2.new(0.5, -100, 1, -40)
+helpText.TextColor3 = Color3.fromRGB(255, 255, 255)
+helpText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+helpText.Parent = ui
+
+helpText.MouseButton1Click:Connect(function()
     ui:Destroy()
+    game:GetService("Players"):Chat("Hubungi TikTok @lawwadmin")
 end)
