@@ -5,7 +5,7 @@ local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlex
 local LawwScriptHUB = LawwLib:MakeWindow({
     Name = "LawwScriptHUB", 
     HidePremium = false, 
-    IntroText = "SABAR WIRR......",
+    IntroText = "LawwScriptHUB Loading...",
     SaveConfig = false, 
     ConfigFolder = "LawwScriptHUB"
 })
@@ -19,8 +19,8 @@ local function ShowWelcomeNotification()
 
     -- Display notification in top-right corner
     LawwLib:MakeNotification({
-        Name = "Selamat Datang " .. displayName,
-        Content = "Anjay Make LawwScriptHUB!",
+        Name = "Welcome " .. displayName,
+        Content = "Enjoy using LawwScriptHUB!",
         Image = avatarUrl,
         Time = 2 -- Notification duration
     })
@@ -61,16 +61,25 @@ ScriptTab:AddButton({
     end
 })
 
+ScriptTab:AddButton({
+    Name = "AUTO CHEST (OP)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()
+    end
+})
 
--- Tab for JOIN JOB
+-- Tab for Auto Join Job ID
 local JoinJobTab = LawwScriptHUB:MakeTab({
     Name = "JOIN JOB",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Input for Job ID
+-- Variables for Auto Join
+local AutoJoin = false
 local JobID = ""
+
+-- Input for Job ID
 JoinJobTab:AddTextbox({
     Name = "Enter Job ID",
     Default = "",
@@ -78,31 +87,49 @@ JoinJobTab:AddTextbox({
     Callback = function(value)
         -- Remove backtick (`) from input
         JobID = value:gsub("`", "")
+        LawwLib:MakeNotification({
+            Name = "Job ID Updated",
+            Content = "Job ID set to: " .. (JobID ~= "" and JobID or "None"),
+            Time = 3,
+            Image = "rbxassetid://4483345998"
+        })
     end
 })
 
--- Button to join Job ID
-JoinJobTab:AddButton({
-    Name = "Join Job ID",
-    Callback = function()
-        if JobID ~= "" then
-            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
+-- Toggle Auto Join Job ID
+JoinJobTab:AddToggle({
+    Name = "Auto Join Job ID",
+    Default = false,
+    Callback = function(value)
+        AutoJoin = value
+        if AutoJoin then
             LawwLib:MakeNotification({
-                Name = "Success",
-                Content = "Joining Job ID: " .. JobID,
+                Name = "Auto Join Activated",
+                Content = "Attempting to join Job ID: " .. (JobID ~= "" and JobID or "None"),
                 Time = 3,
                 Image = "rbxassetid://4483345998"
             })
         else
             LawwLib:MakeNotification({
-                Name = "Error",
-                Content = "Please enter a valid Job ID!",
+                Name = "Auto Join Deactivated",
+                Content = "Stopped attempting to join Job ID.",
                 Time = 3,
                 Image = "rbxassetid://4483345998"
             })
         end
     end
 })
+
+-- Auto Join Logic
+task.spawn(function()
+    while true do
+        if AutoJoin and JobID ~= "" then
+            -- Attempt to join Job ID
+            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
+        end
+        task.wait(1) -- Delay between attempts (1 second)
+    end
+end)
 
 -- Animations & Theme
 LawwLib:MakeNotification({
