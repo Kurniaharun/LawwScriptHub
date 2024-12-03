@@ -1,95 +1,115 @@
--- Library UI (Programmer Style)
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local WelcomeText = Instance.new("TextLabel")
-local ScriptSelectionFrame = Instance.new("Frame")
-local ScriptListTitle = Instance.new("TextLabel")
-local ScriptButtons = {}
+-- Import GUI Library
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 
--- ScreenGui Settings
-ScreenGui.Name = "LawwScriptHUB"
-ScreenGui.Parent = game.CoreGui
+-- Welcome UI
+local playerName = game.Players.LocalPlayer.DisplayName
+local playerAvatar = "https://www.roblox.com/headshot-thumbnail/image?userId="..game.Players.LocalPlayer.UserId.."&width=420&height=420&format=png"
 
--- Main Frame Settings
-Frame.Name = "MainFrame"
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 30)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
-Frame.Size = UDim2.new(0.4, 0, 0.2, 0)
-Frame.Visible = true
+OrionLib:MakeNotification({
+    Name = "Welcome",
+    Content = "Welcome "..playerName,
+    Image = playerAvatar,
+    Time = 2
+})
 
--- Welcome Text Settings
-WelcomeText.Name = "WelcomeText"
-WelcomeText.Parent = Frame
-WelcomeText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-WelcomeText.BackgroundTransparency = 1
-WelcomeText.Size = UDim2.new(1, 0, 0.5, 0)
-WelcomeText.Font = Enum.Font.Code
-WelcomeText.Text = "Welcome, " .. game.Players.LocalPlayer.DisplayName
-WelcomeText.TextColor3 = Color3.fromRGB(85, 170, 255)
-WelcomeText.TextScaled = true
-
--- Show Welcome UI for 2 Seconds
 wait(2)
-Frame.Visible = false
 
--- Script Selection UI
-ScriptSelectionFrame.Name = "ScriptSelectionFrame"
-ScriptSelectionFrame.Parent = ScreenGui
-ScriptSelectionFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 30)
-ScriptSelectionFrame.BorderSizePixel = 0
-ScriptSelectionFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
-ScriptSelectionFrame.Size = UDim2.new(0.4, 0, 0.4, 0)
+-- Password UI
+OrionLib:MakeWindow({
+    Name = "LawwScriptHUB",
+    HidePremium = false,
+    SaveConfig = false
+})
 
--- Script List Title
-ScriptListTitle.Name = "ScriptListTitle"
-ScriptListTitle.Parent = ScriptSelectionFrame
-ScriptListTitle.BackgroundColor3 = Color3.fromRGB(15, 15, 30)
-ScriptListTitle.BorderSizePixel = 0
-ScriptListTitle.Size = UDim2.new(1, 0, 0.2, 0)
-ScriptListTitle.Font = Enum.Font.Code
-ScriptListTitle.Text = "Pilih Script yang Sesuai Buat Kamu"
-ScriptListTitle.TextColor3 = Color3.fromRGB(85, 170, 255)
-ScriptListTitle.TextScaled = true
+local password = nil
+pcall(function()
+    password = game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/LawwScriptHub/refs/heads/main/pass.txt"):split("\n")[1]
+end)
 
--- Function to Create Buttons for Scripts
-local scripts = {
-    {
-        name = "COKKA HUB NO KEY",
-        lua = '_G.Key = "Xzt7M9IAfF"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()'
-    },
-    {
-        name = "RedzHub V2 (Smooth)",
-        lua = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()'
-    },
-    {
-        name = "ANDEPZAI OP (TRIAL)",
-        lua = 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer\nloadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()'
-    },
-    {
-        name = "AUTO CHEST (OP)",
-        lua = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()'
-    }
-}
+local Window = OrionLib:MakeWindow({Name = "LawwScriptHUB"})
 
-for i, script in ipairs(scripts) do
-    local Button = Instance.new("TextButton")
-    Button.Name = script.name
-    Button.Parent = ScriptSelectionFrame
-    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 60)
-    Button.BorderSizePixel = 0
-    Button.Position = UDim2.new(0.1, 0, 0.25 + (i - 1) * 0.15, 0)
-    Button.Size = UDim2.new(0.8, 0, 0.1, 0)
-    Button.Font = Enum.Font.Code
-    Button.Text = script.name
-    Button.TextColor3 = Color3.fromRGB(85, 170, 255)
-    Button.TextScaled = true
+local PassTab = Window:MakeTab({
+    Name = "Password Validation",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
-    Button.MouseButton1Click:Connect(function()
-        -- Run Lua Script
-        loadstring(script.lua)()
-        -- Close UI
-        ScriptSelectionFrame.Visible = false
-    end)
+PassTab:AddTextbox({
+    Name = "Enter Password",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(value)
+        if value == password then
+            OrionLib:MakeNotification({
+                Name = "Success",
+                Content = "Password Correct! Loading Scripts...",
+                Time = 2
+            })
+            loadScriptUI()
+        else
+            OrionLib:MakeNotification({
+                Name = "Error",
+                Content = "Invalid Password!",
+                Time = 2
+            })
+        end
+    end
+})
+
+PassTab:AddButton({
+    Name = "Nyari Key? Click",
+    Callback = function()
+        OrionLib:Destroy() -- Close all UI
+        OrionLib:MakeNotification({
+            Name = "Contact Us",
+            Content = "HUBUNGI TIKTOK @lawwadmin",
+            Time = 5
+        })
+    end
+})
+
+function loadScriptUI()
+    -- Script List UI
+    local ScriptTab = Window:MakeTab({
+        Name = "Scripts",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    ScriptTab:AddButton({
+        Name = "COKKA HUB NO KEY",
+        Callback = function()
+            _G.Key = "Xzt7M9IAfF"
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()
+        end
+    })
+
+    ScriptTab:AddButton({
+        Name = "RedzHub V2 (Smooth)",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()
+        end
+    })
+
+    ScriptTab:AddButton({
+        Name = "ANDEPZAI OP (TRIAL)",
+        Callback = function()
+            repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()
+        end
+    })
+
+    ScriptTab:AddButton({
+        Name = "AUTO CHEST (OP)",
+        Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()
+        end
+    })
+
+    ScriptTab:AddButton({
+        Name = "Close UI",
+        Callback = function()
+            OrionLib:Destroy()
+        end
+    })
 end
