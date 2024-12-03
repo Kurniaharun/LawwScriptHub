@@ -1,5 +1,5 @@
 -- Rename Orion Lib to LawwLib
-local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/Orion/main/source"))()
 
 -- LawwScriptHUB UI Configuration
 local LawwScriptHUB = LawwLib:MakeWindow({
