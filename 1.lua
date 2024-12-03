@@ -5,7 +5,7 @@ local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlex
 local LawwScriptHUB = LawwLib:MakeWindow({
     Name = "LawwScriptHUB", 
     HidePremium = false, 
-    IntroText = "LawwScriptHUB Loading...",
+    IntroText = "SABAR WIRR......",
     SaveConfig = false, 
     ConfigFolder = "LawwScriptHUB"
 })
@@ -19,8 +19,8 @@ local function ShowWelcomeNotification()
 
     -- Display notification in top-right corner
     LawwLib:MakeNotification({
-        Name = "Welcome " .. displayName,
-        Content = "Enjoy using LawwScriptHUB!",
+        Name = "Selamat Datang " .. displayName,
+        Content = "Anjay Make LawwScriptHUB!",
         Image = avatarUrl,
         Time = 2 -- Notification duration
     })
@@ -61,18 +61,46 @@ ScriptTab:AddButton({
     end
 })
 
-ScriptTab:AddButton({
-    Name = "AUTO CHEST (OP)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()
+
+-- Tab for JOIN JOB
+local JoinJobTab = LawwScriptHUB:MakeTab({
+    Name = "JOIN JOB",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Input for Job ID
+local JobID = ""
+JoinJobTab:AddTextbox({
+    Name = "Enter Job ID",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(value)
+        -- Remove backtick (`) from input
+        JobID = value:gsub("`", "")
     end
 })
 
--- Close button for UI
-ScriptTab:AddButton({
-    Name = "Close UI",
+-- Button to join Job ID
+JoinJobTab:AddButton({
+    Name = "Join Job ID",
     Callback = function()
-        LawwLib:Destroy()
+        if JobID ~= "" then
+            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
+            LawwLib:MakeNotification({
+                Name = "Success",
+                Content = "Joining Job ID: " .. JobID,
+                Time = 3,
+                Image = "rbxassetid://4483345998"
+            })
+        else
+            LawwLib:MakeNotification({
+                Name = "Error",
+                Content = "Please enter a valid Job ID!",
+                Time = 3,
+                Image = "rbxassetid://4483345998"
+            })
+        end
     end
 })
 
