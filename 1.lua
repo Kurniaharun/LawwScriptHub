@@ -1,137 +1,93 @@
--- Wait for the game to load completely
-repeat wait() until game:IsLoaded()
+-- Rename Orion Lib to LawwLib
+local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 
--- Basic UI setup
-local player = game.Players.LocalPlayer
-local displayName = player.DisplayName
-local avatarUrl = player.AvatarUrl
-local passwordCorrect = false
+-- LawwScriptHUB UI Configuration
+local LawwScriptHUB = LawwLib:MakeWindow({
+    Name = "LawwScriptHUB", 
+    HidePremium = false, 
+    IntroText = "LawwScriptHUB Loading...",
+    SaveConfig = false, 
+    ConfigFolder = "LawwScriptHUB"
+})
 
--- Create the main UI
-local ui = Instance.new("ScreenGui")
-ui.Parent = player.PlayerGui
-ui.Name = "LawwScriptHUB_UI"
+-- Function for creating welcome notification
+local function ShowWelcomeNotification()
+    local player = game.Players.LocalPlayer
+    local displayName = player.DisplayName
+    local userId = player.UserId
+    local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(userId) .. "&width=420&height=420&format=png"
 
--- Welcome Notification UI
-local welcomeFrame = Instance.new("Frame")
-welcomeFrame.Size = UDim2.new(0, 300, 0, 100)
-welcomeFrame.Position = UDim2.new(1, -350, 0, 10)
-welcomeFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-welcomeFrame.BackgroundTransparency = 0.5
-welcomeFrame.Parent = ui
+    -- Display notification in top-right corner
+    LawwLib:MakeNotification({
+        Name = "Welcome " .. displayName,
+        Content = "Enjoy using LawwScriptHUB!",
+        Image = avatarUrl,
+        Time = 2 -- Notification duration
+    })
+end
 
-local welcomeText = Instance.new("TextLabel")
-welcomeText.Text = "Welcome " .. displayName
-welcomeText.Size = UDim2.new(1, 0, 1, 0)
-welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
-welcomeText.TextSize = 24
-welcomeText.Parent = welcomeFrame
+-- Show welcome notification with a 2-second delay before the main UI opens
+ShowWelcomeNotification()
+task.wait(2)
 
-local avatarImage = Instance.new("ImageLabel")
-avatarImage.Image = avatarUrl
-avatarImage.Size = UDim2.new(0, 40, 0, 40)
-avatarImage.Position = UDim2.new(0, 10, 0.5, -20)
-avatarImage.Parent = welcomeFrame
+-- Main UI with list of scripts
+local ScriptTab = LawwScriptHUB:MakeTab({
+    Name = "Script List",
+    Icon = "rbxassetid://4483345998", -- Example icon
+    PremiumOnly = false
+})
 
--- Animation to close after 2 seconds
-wait(2)
-welcomeFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
-
--- Password input UI
-local passwordFrame = Instance.new("Frame")
-passwordFrame.Size = UDim2.new(0, 400, 0, 200)
-passwordFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
-passwordFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-passwordFrame.BackgroundTransparency = 0.8
-passwordFrame.Parent = ui
-
-local passwordLabel = Instance.new("TextLabel")
-passwordLabel.Text = "Enter Password"
-passwordLabel.Size = UDim2.new(1, 0, 0, 40)
-passwordLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-passwordLabel.TextSize = 24
-passwordLabel.Parent = passwordFrame
-
-local passwordTextbox = Instance.new("TextBox")
-passwordTextbox.Size = UDim2.new(1, -40, 0, 40)
-passwordTextbox.Position = UDim2.new(0, 20, 0, 60)
-passwordTextbox.PlaceholderText = "Enter password"
-passwordTextbox.TextColor3 = Color3.fromRGB(255, 255, 255)
-passwordTextbox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-passwordTextbox.Parent = passwordFrame
-
-local submitButton = Instance.new("TextButton")
-submitButton.Size = UDim2.new(0, 100, 0, 40)
-submitButton.Position = UDim2.new(0.5, -50, 1, -60)
-submitButton.Text = "Submit"
-submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-submitButton.Parent = passwordFrame
-
--- Password check
-submitButton.MouseButton1Click:Connect(function()
-    if passwordTextbox.Text == "lawwvip" then
-        passwordCorrect = true
-        passwordFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true)
-        -- Show script buttons
-        showScripts()
-    else
-        -- Show incorrect password message
-        local errorMessage = Instance.new("TextLabel")
-        errorMessage.Text = "Incorrect Password"
-        errorMessage.Size = UDim2.new(1, 0, 0, 40)
-        errorMessage.TextColor3 = Color3.fromRGB(255, 0, 0)
-        errorMessage.TextSize = 24
-        errorMessage.Parent = passwordFrame
+-- List of scripts
+ScriptTab:AddButton({
+    Name = "COKKA HUB NO KEY",
+    Callback = function()
+        _G.Key = "Xzt7M9IAfF"
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()
     end
-end)
+})
 
--- Function to create script buttons
-local function createScriptButton(scriptName, code)
-    local button = Instance.new("TextButton")
-    button.Text = scriptName
-    button.Size = UDim2.new(1, -20, 0, 40)
-    button.Position = UDim2.new(0, 10, 0, 10)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-    button.Parent = ui
+ScriptTab:AddButton({
+    Name = "RedzHub V2 (Smooth)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()
+    end
+})
 
-    button.MouseButton1Click:Connect(function()
-        loadstring(code)()
-    end)
-end
+ScriptTab:AddButton({
+    Name = "ANDEPZAI OP (TRIAL)",
+    Callback = function()
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()
+    end
+})
 
--- Show scripts after password is correct
-function showScripts()
-    createScriptButton("COKKA HUB NO KEY", '_G.Key = "Xzt7M9IAfF"\nloadstring(game:HttpGet("https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua"))()')
-    createScriptButton("RedzHub V2 (Smooth)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()')
-    createScriptButton("ANDEPZAI OP (TRIAL)", 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer \nloadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()')
-    createScriptButton("AUTO CHEST (OP)", 'loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()')
+ScriptTab:AddButton({
+    Name = "AUTO CHEST (OP)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()
+    end
+})
 
-    -- Close UI Button
-    local closeButton = Instance.new("TextButton")
-    closeButton.Text = "Close UI"
-    closeButton.Size = UDim2.new(0, 100, 0, 40)
-    closeButton.Position = UDim2.new(1, -110, 1, -50)
-    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    closeButton.Parent = ui
+-- Close button for UI
+ScriptTab:AddButton({
+    Name = "Close UI",
+    Callback = function()
+        LawwLib:Destroy()
+    end
+})
 
-    closeButton.MouseButton1Click:Connect(function()
-        ui:Destroy()
-    end)
-end
+-- Animations & Theme
+LawwLib:MakeNotification({
+    Name = "Info",
+    Content = "UI Hitam ke Biruan dengan efek pop-up.",
+    Time = 5,
+    Image = "rbxassetid://4483345998"
+})
 
--- "Need the key?" clickable text
-local helpText = Instance.new("TextButton")
-helpText.Text = "Need the key? Click here"
-helpText.Size = UDim2.new(0, 200, 0, 40)
-helpText.Position = UDim2.new(0.5, -100, 1, -40)
-helpText.TextColor3 = Color3.fromRGB(255, 255, 255)
-helpText.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-helpText.Parent = ui
-
-helpText.MouseButton1Click:Connect(function()
-    ui:Destroy()
-    game:GetService("Players"):Chat("Hubungi TikTok @lawwadmin")
-end)
+-- Set theme
+LawwLib:SetTheme("DarkTheme")
+LawwLib:MakeTab({
+    Name = "Credits",
+    Content = "Designed by Laww",
+    Icon = "rbxassetid://4483345998"
+})
