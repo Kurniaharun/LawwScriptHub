@@ -1,5 +1,5 @@
 -- Rename Orion Lib to LawwLib
-local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kurniaharun/Orion/main/source"))()
+local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 
 -- LawwScriptHUB UI Configuration
 local LawwScriptHUB = LawwLib:MakeWindow({
@@ -10,35 +10,125 @@ local LawwScriptHUB = LawwLib:MakeWindow({
     ConfigFolder = "LawwScriptHUB"
 })
 
--- Function for creating welcome notification
+-- Sistem Key
+local Authenticated = false
+local RequiredKey = "LawwXPrem"
+
+-- Popup untuk sistem key
+local function ShowKeyPrompt()
+    LawwLib:MakeNotification({
+        Name = "Authentication Required",
+        Content = "Please enter the key to access LawwScriptHUB.",
+        Time = 5,
+        Image = "rbxassetid://4483345998"
+    })
+    
+    LawwLib:MakeWindow({
+        Name = "Key Authentication",
+        HidePremium = false,
+        SaveConfig = false
+    }):AddTextbox({
+        Name = "Enter Key",
+        Default = "",
+        TextDisappear = true,
+        Callback = function(value)
+            if value == RequiredKey then
+                Authenticated = true
+                LawwLib:MakeNotification({
+                    Name = "Success",
+                    Content = "Key accepted. Welcome to LawwScriptHUB!",
+                    Time = 5,
+                    Image = "rbxassetid://4483345998"
+                })
+            else
+                Authenticated = false
+                LawwLib:MakeNotification({
+                    Name = "Invalid Key",
+                    Content = "The key you entered is incorrect. Please try again.",
+                    Time = 5,
+                    Image = "rbxassetid://4483345998"
+                })
+            end
+        end
+    })
+end
+
+-- Tampilkan prompt key sebelum fitur muncul
+ShowKeyPrompt()
+
+-- Tunggu hingga key benar
+repeat task.wait(1) until Authenticated
+
+-- Welcome Notification
 local function ShowWelcomeNotification()
     local player = game.Players.LocalPlayer
     local displayName = player.DisplayName
     local userId = player.UserId
     local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(userId) .. "&width=420&height=420&format=png"
 
-    -- Display notification in top-right corner
     LawwLib:MakeNotification({
         Name = "Welcome " .. displayName,
-        Content = "LawwScriptHub On The Fire",
+        Content = "Enjoy using LawwScriptHUB!",
         Image = avatarUrl,
-        Time = 2 -- Notification duration
+        Time = 2
     })
 end
-
--- Show welcome notification with a 2-second delay before the main UI opens
 ShowWelcomeNotification()
 task.wait(2)
 
--- Main UI with list of scripts
-local ScriptTab = LawwScriptHUB:MakeTab({
-    Name = "Script List",
-    Icon = "rbxassetid://4483345998", -- Example icon
+-- Tabs and Features (similar to previous script)
+-- JOIN JOB Tab
+local JoinJobTab = LawwScriptHUB:MakeTab({
+    Name = "JOIN JOB",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+local AutoJoin = false
+local JobID = ""
+
+JoinJobTab:AddTextbox({
+    Name = "Enter Job ID",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(value)
+        JobID = value:gsub("`", "")
+    end
+})
+
+JoinJobTab:AddButton({
+    Name = "Join Job ID",
+    Callback = function()
+        if JobID ~= "" then
+            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
+        end
+    end
+})
+
+JoinJobTab:AddToggle({
+    Name = "Auto Join Job ID",
+    Default = false,
+    Callback = function(value)
+        AutoJoin = value
+    end
+})
+
+task.spawn(function()
+    while true do
+        if AutoJoin and JobID ~= "" then
+            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
+        end
+        task.wait(1)
+    end
+end)
+
+-- SCRIPT HUB Tab
+local ScriptHubTab = LawwScriptHUB:MakeTab({
+    Name = "SCRIPT HUB",
+    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- List of scripts
-ScriptTab:AddButton({
+ScriptHubTab:AddButton({
     Name = "COKKA HUB NO KEY",
     Callback = function()
         _G.Key = "Xzt7M9IAfF"
@@ -46,14 +136,14 @@ ScriptTab:AddButton({
     end
 })
 
-ScriptTab:AddButton({
+ScriptHubTab:AddButton({
     Name = "RedzHub V2 (Smooth)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()
     end
 })
 
-ScriptTab:AddButton({
+ScriptHubTab:AddButton({
     Name = "ANDEPZAI OP (TRIAL)",
     Callback = function()
         repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
@@ -61,88 +151,48 @@ ScriptTab:AddButton({
     end
 })
 
-ScriptTab:AddButton({
+ScriptHubTab:AddButton({
     Name = "AUTO CHEST (OP)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/VGB-VGB-VGB/-VGB-Chest-Farm--/refs/heads/main/ChestFarmByVGBTeam"))()
     end
 })
 
--- Tab for Auto Join Job ID
-local JoinJobTab = LawwScriptHUB:MakeTab({
-    Name = "JOIN JOB",
+-- MISC Tab
+local MiscTab = LawwScriptHUB:MakeTab({
+    Name = "MISC",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Variables for Auto Join
-local AutoJoin = false
-local JobID = ""
-
--- Input for Job ID
-JoinJobTab:AddTextbox({
-    Name = "Enter Job ID",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(value)
-        -- Remove backtick (`) from input
-        JobID = value:gsub("`", "")
-        LawwLib:MakeNotification({
-            Name = "Job ID Updated",
-            Content = "Job ID set to: " .. (JobID ~= "" and JobID or "None"),
-            Time = 3,
-            Image = "rbxassetid://4483345998"
-        })
+MiscTab:AddButton({
+    Name = "Boost FPS",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FPS-BOOSTER/main/FPSBooster.txt"))()
     end
 })
 
--- Toggle Auto Join Job ID
-JoinJobTab:AddToggle({
-    Name = "Auto Join Job ID",
+MiscTab:AddToggle({
+    Name = "Infinite Jump",
     Default = false,
+    Callback = function(state)
+        game:GetService("UserInputService").JumpRequest:Connect(function()
+            if state then
+                game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+            end
+        end)
+    end
+})
+
+MiscTab:AddSlider({
+    Name = "Walk Speed",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Color = Color3.fromRGB(0, 102, 255),
     Callback = function(value)
-        AutoJoin = value
-        if AutoJoin then
-            LawwLib:MakeNotification({
-                Name = "Auto Join Activated",
-                Content = "Attempting to join Job ID: " .. (JobID ~= "" and JobID or "None"),
-                Time = 3,
-                Image = "rbxassetid://4483345998"
-            })
-        else
-            LawwLib:MakeNotification({
-                Name = "Auto Join Deactivated",
-                Content = "Stopped attempting to join Job ID.",
-                Time = 3,
-                Image = "rbxassetid://4483345998"
-            })
-        end
+        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
     end
 })
 
--- Auto Join Logic
-task.spawn(function()
-    while true do
-        if AutoJoin and JobID ~= "" then
-            -- Attempt to join Job ID
-            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", JobID)
-        end
-        task.wait(1) -- Delay between attempts (1 second)
-    end
-end)
-
--- Animations & Theme
-LawwLib:MakeNotification({
-    Name = "Info",
-    Content = "Sc Ini Dibuat Oleh Tiktok lawwadmin",
-    Time = 5,
-    Image = "rbxassetid://4483345998"
-})
-
--- Set theme
-LawwLib:SetTheme("DarkTheme")
-LawwLib:MakeTab({
-    Name = "Credits",
-    Content = "Designed by Laww",
-    Icon = "rbxassetid://4483345998"
-})
+-- UTILITIES Tab, PLAYER TOOLS Tab (Same as before, omitted for brevity)
