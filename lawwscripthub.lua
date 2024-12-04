@@ -13,41 +13,67 @@ local LawwScriptHUB = LawwLib:MakeWindow({
 -- Sistem Key
 local Authenticated = false
 local RequiredKey = "LawwXPrem"
+local KeyStorage = game:GetService("Workspace"):FindFirstChild("LawwScriptKey") -- Autosave Key di Workspace
 
--- Key Validation Tab
-local KeyTab = LawwScriptHUB:MakeTab({
-    Name = "KEY AUTH",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-KeyTab:AddTextbox({
-    Name = "Enter Key",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(value)
-        if value == RequiredKey then
-            Authenticated = true
-            LawwLib:MakeNotification({
-                Name = "Success",
-                Content = "Key accepted! Welcome to LawwScriptHUB!",
-                Time = 5,
-                Image = "rbxassetid://4483345998"
-            })
-        else
-            LawwLib:MakeNotification({
-                Name = "Invalid Key",
-                Content = "Incorrect key, please try again.",
-                Time = 5,
-                Image = "rbxassetid://4483345998"
-            })
-        end
+-- Fungsi untuk menyimpan key ke Workspace
+local function SaveKeyToWorkspace(key)
+    if not game:GetService("Workspace"):FindFirstChild("LawwScriptKey") then
+        local KeyObject = Instance.new("StringValue", game:GetService("Workspace"))
+        KeyObject.Name = "LawwScriptKey"
+        KeyObject.Value = key
     end
-})
+end
 
--- Tunggu hingga key benar sebelum melanjutkan
-while not Authenticated do
-    task.wait(1)
+-- Jika Key sudah tersimpan dan valid, otomatis autentikasi
+if KeyStorage and KeyStorage.Value == RequiredKey then
+    Authenticated = true
+    LawwLib:MakeNotification({
+        Name = "Welcome Back",
+        Content = "Key valid! Welcome to LawwScriptHUB!",
+        Time = 5,
+        Image = "rbxassetid://4483345998"
+    })
+else
+    -- Key Validation Tab
+    local KeyTab = LawwScriptHUB:MakeTab({
+        Name = "KEY AUTH",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    KeyTab:AddTextbox({
+        Name = "Enter Key",
+        Default = "",
+        TextDisappear = true,
+        Callback = function(value)
+            if value == RequiredKey then
+                Authenticated = true
+                SaveKeyToWorkspace(value) -- Simpan key ke Workspace
+
+                LawwLib:MakeNotification({
+                    Name = "Success",
+                    Content = "Key accepted! Welcome to LawwScriptHUB!",
+                    Time = 5,
+                    Image = "rbxassetid://4483345998"
+                })
+
+                -- Hapus KeyTab setelah key benar
+                LawwLib:DestroyTab(KeyTab)
+            else
+                LawwLib:MakeNotification({
+                    Name = "Invalid Key",
+                    Content = "Incorrect key, please try again.",
+                    Time = 5,
+                    Image = "rbxassetid://4483345998"
+                })
+            end
+        end
+    })
+
+    -- Tunggu hingga key benar sebelum melanjutkan
+    while not Authenticated do
+        task.wait(1)
+    end
 end
 
 -- Welcome Notification
@@ -99,6 +125,21 @@ JoinJobTab:AddToggle({
     Default = false,
     Callback = function(value)
         AutoJoin = value
+    end
+})
+
+JoinJobTab:AddButton({
+    Name = "Join Less Player",
+    Callback = function()
+        local HttpService = game:GetService("HttpService")
+        local Servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+
+        for _, server in ipairs(Servers.data) do
+            if server.playing < server.maxPlayers then
+                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, server.id)
+                break
+            end
+        end
     end
 })
 
@@ -159,28 +200,5 @@ MiscTab:AddButton({
     Name = "Boost FPS",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FPS-BOOSTER/main/FPSBooster.txt"))()
-    end
-})
-
-MiscTab:AddToggle({
-    Name = "Infinite Jump",
-    Default = false,
-    Callback = function(state)
-        game:GetService("UserInputService").JumpRequest:Connect(function()
-            if state then
-                game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-            end
-        end)
-    end
-})
-
-MiscTab:AddSlider({
-    Name = "Walk Speed",
-    Min = 16,
-    Max = 200,
-    Default = 16,
-    Color = Color3.fromRGB(0, 102, 255),
-    Callback = function(value)
-        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
     end
 })
