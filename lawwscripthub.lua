@@ -3,10 +3,10 @@ local LawwLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlex
 
 -- LawwScriptHUB UI Configuration
 local LawwScriptHUB = LawwLib:MakeWindow({
-    Name = "LawwScriptHUB", 
-    HidePremium = false, 
+    Name = "LawwScriptHUB",
+    HidePremium = false,
     IntroText = "LawwScriptHUB Loading...",
-    SaveConfig = false, 
+    SaveConfig = false,
     ConfigFolder = "LawwScriptHUB"
 })
 
@@ -14,50 +14,41 @@ local LawwScriptHUB = LawwLib:MakeWindow({
 local Authenticated = false
 local RequiredKey = "LawwXPrem"
 
--- Popup untuk sistem key
-local function ShowKeyPrompt()
-    LawwLib:MakeNotification({
-        Name = "Authentication Required",
-        Content = "Please enter the key to access LawwScriptHUB.",
-        Time = 5,
-        Image = "rbxassetid://4483345998"
-    })
-    
-    LawwLib:MakeWindow({
-        Name = "Key Authentication",
-        HidePremium = false,
-        SaveConfig = false
-    }):AddTextbox({
-        Name = "Enter Key",
-        Default = "",
-        TextDisappear = true,
-        Callback = function(value)
-            if value == RequiredKey then
-                Authenticated = true
-                LawwLib:MakeNotification({
-                    Name = "Success",
-                    Content = "Key accepted. Welcome to LawwScriptHUB!",
-                    Time = 5,
-                    Image = "rbxassetid://4483345998"
-                })
-            else
-                Authenticated = false
-                LawwLib:MakeNotification({
-                    Name = "Invalid Key",
-                    Content = "The key you entered is incorrect. Please try again.",
-                    Time = 5,
-                    Image = "rbxassetid://4483345998"
-                })
-            end
+-- Key Validation Tab
+local KeyTab = LawwScriptHUB:MakeTab({
+    Name = "KEY AUTH",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+KeyTab:AddTextbox({
+    Name = "Enter Key",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(value)
+        if value == RequiredKey then
+            Authenticated = true
+            LawwLib:MakeNotification({
+                Name = "Success",
+                Content = "Key accepted! Welcome to LawwScriptHUB!",
+                Time = 5,
+                Image = "rbxassetid://4483345998"
+            })
+        else
+            LawwLib:MakeNotification({
+                Name = "Invalid Key",
+                Content = "Incorrect key, please try again.",
+                Time = 5,
+                Image = "rbxassetid://4483345998"
+            })
         end
-    })
+    end
+})
+
+-- Tunggu hingga key benar sebelum melanjutkan
+while not Authenticated do
+    task.wait(1)
 end
-
--- Tampilkan prompt key sebelum fitur muncul
-ShowKeyPrompt()
-
--- Tunggu hingga key benar
-repeat task.wait(1) until Authenticated
 
 -- Welcome Notification
 local function ShowWelcomeNotification()
@@ -76,7 +67,6 @@ end
 ShowWelcomeNotification()
 task.wait(2)
 
--- Tabs and Features (similar to previous script)
 -- JOIN JOB Tab
 local JoinJobTab = LawwScriptHUB:MakeTab({
     Name = "JOIN JOB",
@@ -194,5 +184,3 @@ MiscTab:AddSlider({
         game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
     end
 })
-
--- UTILITIES Tab, PLAYER TOOLS Tab (Same as before, omitted for brevity)
